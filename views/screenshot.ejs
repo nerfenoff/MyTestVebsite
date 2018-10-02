@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <title>скриншоты</title>
+    <link rel="stylesheet" href="../public/css/style.css">
+</head>
+<body background="public/img/4.jpg">
+<div id="content">
+    <% include blocks/header.ejs %>
+
+    <div>
+    <h1>Скриншоты</h1>
+    <p id="console"></p>
+    </div>
+    <div id="center">
+        <% for(var i = 3 * +begin; i < array.length && i < 3*(+begin+1); ++i){ %>
+            <img class="image" id= <%- i -%> src= <%- array[i] -%> onclick = "resize(id)">
+        <% } %>
+    </div>
+
+    <div id = "pageCount" align="center">
+         
+        <% for(var i = 0; i < pageCount; ++i){ %>
+            <a href= <%- i -%>> <%- i -%> </a> /
+    <% } %>
+    </div>
+    <button onclick="save()">save</button>
+    <script type="text/javascript">
+        function resize(id) {
+            
+            var consolee = document.getElementById("console");
+            consolee.innerHTML = id;
+
+            var x = document.getElementById(id);
+
+            if(x.style.width != "")
+            {
+                var t = x.style.width.substr(0,x.style.width.length - 2);
+                var inc = 50;
+                x.style.width = (+t + +inc) + "px";
+            }
+            else
+            {
+                x.style.width = "380px";
+            }
+
+            }
+    </script>
+    <script type="text/javascript">
+        function save()
+        {
+            var elements = document.getElementById("center");
+            var json = '{\n ';
+            if(elements.hasChildNodes)
+            {
+                var arr = elements.childNodes;
+                for(var i = 1; i < arr.length;i += 2)
+                {
+                    alert(x.instanceOf());
+
+                   json += '"' + arr[i].id + '":{ \n "id":"'+ arr[i].id + '",\n "src":"' + arr[i].src +'"\n}';
+                   
+                   if(i != arr.length-2) json += ',\n';     
+                   
+                }
+                json += '\n}'
+                alert(json);
+            }
+        }
+    </script>
+</div> 
+<div id="footer">
+    Copyright &copy; 2017
+</div>
+</body>
+</html>

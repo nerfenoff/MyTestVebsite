@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <title>Видео</title>
+    <link rel="stylesheet" href="public/css/style.css">
+</head>
+<body background="public/img/4.jpg">
+    <% include blocks/header.ejs %>
+
+      <h1 align="center">Видео</h1>
+    <div id="video">
+
+
+        <% array.forEach(function(item){ %>
+            <iframe src= <%= item %> width="45%" height="400" frameborder="0" allowfullscreen></iframe>  
+        <% }); %>
+
+        
+        <video width="45%" height="400" frameborder="0"  controls="controls" poster="public/img/zst1.png">
+            <source src="public/video/1.mp4" type="video/mp4" codecs="avc1.42E01E, mp4a.40.2">
+        </video>
+        <video width="45%" height="400" frameborder="0" controls="controls" poster="public/img/zst2.png">
+             <source src="public/video/2.mp4" type="video/mp4" codecs="avc1.42E01E, mp4a.40.2">
+        </video>     
+    </div>
+
+
+    <form method="post" action="/video">
+        <div class="form-group">
+            <label for="exampleInputEmail1">Введте ссылку на видео</label>
+            <input type="text" class="form-control" name="link"  aria-describedby="linkVideo" placeholder="Enter link">
+            <small id="emailHelp" class="form-text text-muted">123.</small>
+        </div>
+            <button type="submit" class="btn btn-primary">добавить</button>
+    </form>
+</div>
+<div id="footer">
+    Copyright &copy; 2017
+</div>
+</body>
+</html>
