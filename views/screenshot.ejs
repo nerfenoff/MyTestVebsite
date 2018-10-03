@@ -6,6 +6,8 @@
     <link rel="stylesheet" href="../public/css/style.css">
 </head>
 <body background="public/img/4.jpg">
+
+    <% include blocks/adminPanel.ejs %>
 <div id="content">
     <% include blocks/header.ejs %>
 
@@ -15,7 +17,7 @@
     </div>
     <div id="center">
         <% for(var i = 3 * +begin; i < array.length && i < 3*(+begin+1); ++i){ %>
-            <img class="image" id= <%- i -%> src= <%- array[i] -%> onclick = "resize(id)">
+            <img class="image" id= <%- i -%> src= <%- array[i] -%> onclick = "select(id)">
         <% } %>
     </div>
 
@@ -46,6 +48,7 @@
             }
 
             }
+            
     </script>
     <script type="text/javascript">
         function save()

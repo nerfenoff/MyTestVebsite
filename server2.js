@@ -1,5 +1,7 @@
 var express = require("express");
 var bodyParser = require('body-parser');
+var cookieParser = require('cookie-parser');
+
 
 var app = express();
 
@@ -39,9 +41,22 @@ var currentUser =
 app.set("view engine","ejs");
 app.use("/public",express.static("public"));
 app.use(bodyParser.json());
+app.use(cookieParser('Secret string'));
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
 
-app.get("/",function(req,res){
+//обработчики****************
+app.use(function (req, res, next) {
+	if(req.cookies.login == null)
+	{
+		var newUser = {username: null, password: null, email: null};
+  		res.cookie('login', newUser);
+	}
+  next();
+});
+
+//***************************
+
+app.get("/",function(req,res){  
 	res.render("index");
 });
 app.get("/index",function(req,res){
@@ -73,7 +88,7 @@ app.post("/registrationNewUser",urlencodedParser,function(req,res){
 	if (!req.body) return res.sendStatus(400);
 
   		var user = {username: req.body.username, password: req.body.pass, email: req.body.email};
-  		setCurrentUser(user);
+  		res.cookie('login', user, { maxAge : 35000 });
   		add(user);
 
   	res.redirect("UserPage");
@@ -82,10 +97,6 @@ app.post("/registrationNewUser",urlencodedParser,function(req,res){
 function add(user){
 	var newUser = {username: user.username, password: user.password, email: user.email};
 	users.push(newUser);
-}
-function setCurrentUser(user){
-	var newUser = {username: user.username, password: user.password, email: user.email};
-	currentUser = newUser;
 }
 
 app.route("/login")
@@ -100,7 +111,7 @@ app.route("/login")
 		{
 			if(users[i].username == req.body.username)
 			{
-				setCurrentUser(users[i]);
+				res.cookie('login', users[i], { maxAge : 35000 });
 				found = true;
 				break;
 			}
@@ -120,8 +131,7 @@ app.route("/login")
 
 app.get("/getCurrentUser",function(req, res) {
 		res.writeHead(200, {'Content-Type':'application/json'}); 
-		var obj = JSON.stringify(currentUser);
-		console.log(obj);
+		var obj = JSON.stringify(req.cookies.login);
 		res.end(obj); 
 	})
 
@@ -135,16 +145,16 @@ app.post("/video",urlencodedParser,function(req,res){
 
 app.route('/UserPage')
 	.get(function(req, res) {
-		res.render("UserPage",{currentUser : currentUser});
+		res.render("UserPage",{currentUser : req.cookies.login});
 	})
 	.post(function(req, res) {
 		if (!req.body) return res.sendStatus(400);
 
 	})
 app.get('/exit',function(req,res){
-	//res.writeHead(200, {'Content-Type':'text/plan'}); 
 	var user = {username: null, password: null, email: null};
-	setCurrentUser(user);
+	res.cookie('login', user, { maxAge : 35000 });
+
 	res.redirect("index");
 })
 
