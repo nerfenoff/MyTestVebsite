@@ -3,8 +3,6 @@
 	getReq.open('GET','/getCurrentUser',false);
 	getReq.onload = function(){
 		var user = JSON.parse(this.responseText);
-		//alert(user.username);
-
 		if(user.username != null){
 			elem.innerHTML = user.username;
 			elem.href = "../UserPage"

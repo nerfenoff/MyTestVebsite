@@ -26,21 +26,17 @@ var ImgRes = [
 ];
 
 var users = [
-{username : "admin",
- password : "admin",
- email: "admin@mail.com"}
+	{
+		username : "admin",
+ 		password : "admin",
+ 		email: "admin@mail.com"
+	}
 ]
-
-var currentUser =
-{
-	username : null,
- 	password : null,
- 	email: null
-}
 
 app.set("view engine","ejs");
 app.use("/public",express.static("public"));
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }))
 app.use(cookieParser('Secret string'));
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
 
@@ -65,7 +61,10 @@ app.get("/index",function(req,res){
 
 app.get("/screenshot/:id",function(req,res){
 	var pageCount = ImgRes.length / 3;
-	res.render("screenshot",{array: ImgRes, begin: req.params.id, pageCount: pageCount});
+	if(req.params.id > pageCount)
+		res.render("404");
+	else
+		res.render("screenshot",{array: ImgRes, begin: req.params.id, pageCount: pageCount});
 });
 
 app.get("/video",function(req,res){
@@ -87,11 +86,39 @@ app.get("/videosAdds",function(req,res){
 app.post("/registrationNewUser",urlencodedParser,function(req,res){
 	if (!req.body) return res.sendStatus(400);
 
-  		var user = {username: req.body.username, password: req.body.pass, email: req.body.email};
-  		res.cookie('login', user, { maxAge : 35000 });
-  		add(user);
+  		
 
-  	res.redirect("UserPage");
+		var data = req.body;
+		var errorString = '';
+		var find = false;
+		for(var i = 0; i < users.length; ++i)
+		{
+			if(users[i].username == data.username){
+				errorString += '<p>Это имя пользователя уже занято</p>';
+				find = true;
+			}
+			if(users[i].email == data.email){
+				errorString += '<p>Это Email уже занят</p>'
+				find = true;
+			}
+			if(find) break;
+		}
+		if(errorString == ''){
+	  		var user = {username: req.body.username, password: req.body.password, email: req.body.email};
+	  		res.cookie('login', user, { maxAge : 35000 });
+	  		add(user);
+	  		//res.writeHead(200, {'Content-Type':'http'}); 
+	  		res.end("next");
+  		}
+  		else
+  		{
+  			res.writeHead(200, {'Content-Type':'text/plan'}); 
+  			res.end(errorString);
+
+  		}
+
+
+  	
 });
 
 function add(user){
@@ -159,4 +186,4 @@ app.get('/exit',function(req,res){
 })
 
 
-app.listen(3000);
+app.listen(3030);

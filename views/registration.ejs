@@ -6,25 +6,75 @@
 </head>
 <body>
 
-<form method="post" action="/registrationNewUser">
   <div class = "username">
   <label for="username">username</label>
-  <input type="text" class="form-control" name="username"  placeholder="Enter username">
+  <input type="text" class="form-control" id = "username"  placeholder="Enter username">
   </div>
+
   <div class="form-group">
     <label for="exampleInputEmail1">Email address</label>
-    <input type="email" class="form-control" name="email"  aria-describedby="emailHelp" placeholder="Enter email">
+    <input type="email" class="form-control"  aria-describedby="emailHelp" placeholder="Enter email" id = "email">
     <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
   </div>
+
   <div class="form-group">
     <label for="exampleInputPassword1">Password</label>
-    <input type="password" class="form-control" name="pass" id="exampleInputPassword1" placeholder="Password">
+    <input type="password" class="form-control" id="password" placeholder="Password">
   </div>
+
   <div class="form-group form-check">
     <input type="checkbox" class="form-check-input" name ="check" id="exampleCheck1">
     <label class="form-check-label" for="exampleCheck1">Check me out</label>
   </div>
-  <button type="submit" class="btn btn-primary">Отправить</button>
-</form>
+
+  <button onclick="check()"  class="btn btn-primary">Отправить</button>
+
+<div id = 'Errors'></div>
+<script type="text/javascript">
+  function check(){
+    var username = document.getElementById("username");
+    var email = document.getElementById("email");
+    var password = document.getElementById("password");
+    var errorString = "";
+    if(username.value == "")
+      errorString += '<p>введите имя пользователя</p>';
+
+    if(email.value == "")
+      errorString += '<p>введите Email</p>';
+
+    if(password.value.length < 8)
+      errorString += '<p>размер пароля должен быть не менее 8 символов</p>';
+
+    if(errorString == ""){
+      document.getElementById("Errors").innerHTML = "send";
+
+      var postReq = new XMLHttpRequest(); 
+      postReq.open('POST','/registrationNewUser',false); 
+      postReq.setRequestHeader('Content-Type', 'application/json'); 
+
+      postReq.onload = function() {
+        alert(location.origin);
+        if(this.responseText == 'next')
+          window.location = location.origin + '/UserPage';
+        else
+          document.getElementById('Errors').innerHTML = this.responseText; 
+      }; 
+
+      var j = {
+          username: username.value,
+          email: email.value,
+          password: password.value
+        }; 
+        var temp = JSON.stringify(j);
+
+    postReq.send(JSON.stringify(j)); 
+
+    }
+    else
+      document.getElementById("Errors").innerHTML = errorString;
+  }
+
+
+</script>
 </body>
 </html>
