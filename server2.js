@@ -1,6 +1,8 @@
-var express = require("express");
-var bodyParser = require('body-parser');
-var cookieParser = require('cookie-parser');
+const express = require("express");
+const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
+const sqlite3 = require('sqlite3').verbose();
+
 
 
 var app = express();
@@ -82,13 +84,15 @@ app.get("/registration",function(req,res){
 app.get("/videosAdds",function(req,res){
 	res.render("videosAdds");
 });
-
+//******************************************************************
+//*********************НАЧАЛО***************************************
+//******************************************************************
+//регистрация
+//пока все ещё работает на масиве
 app.post("/registrationNewUser",urlencodedParser,function(req,res){
 	if (!req.body) return res.sendStatus(400);
 
-  		
-
-		var data = req.body;
+		var data = req.body; // получаем данные с post запроса
 		var errorString = '';
 		var find = false;
 		for(var i = 0; i < users.length; ++i)
@@ -103,17 +107,18 @@ app.post("/registrationNewUser",urlencodedParser,function(req,res){
 			}
 			if(find) break;
 		}
+		//let result = findData(data); // еще не работает как надо
 		if(errorString == ''){
 	  		var user = {username: req.body.username, password: req.body.password, email: req.body.email};
 	  		res.cookie('login', user, { maxAge : 35000 });
 	  		add(user);
-	  		//res.writeHead(200, {'Content-Type':'http'}); 
 	  		res.end("next");
   		}
   		else
   		{
+  			console.log(result);
   			res.writeHead(200, {'Content-Type':'text/plan'}); 
-  			res.end(errorString);
+  			res.end(result);
 
   		}
 
@@ -121,10 +126,75 @@ app.post("/registrationNewUser",urlencodedParser,function(req,res){
   	
 });
 
+function findData(user){
+	var newUser = {username: user.username, password: user.password, email: user.email};
+	console.log("\n\n\n\n\n");
+
+	let db = new sqlite3.Database('public/DB/users.db', sqlite3.OPEN_READONLY, (err) => {
+  	if (err) {
+    	console.error(err.message);
+  	}
+  });
+	let result = '';
+
+	db.serialize(() => {
+  
+  db.run(`SELECT * FROM users WHERE username = ' `+ user.username +`' OR email = '`+ user.email + `';`, (err, row) => {
+      if (err){
+        throw err;
+      }
+      if(row == null){
+      	result = 'find';
+      }
+      else{
+      	if(row.username != null) resut += '<p>это имя пользователя уже занято</p>';
+      }
+
+    });
+});
+	db.close((err) => {
+	  if (err) {
+	    console.error(err.message);
+	  }
+	  console.log('Close the database connection.');
+	});
+	return result;
+
+}
+//*******************************************************************
+//*******************************************************************
 function add(user){
 	var newUser = {username: user.username, password: user.password, email: user.email};
 	users.push(newUser);
+/*
+	let db = new sqlite3.Database('public/DB/users.db', sqlite3.OPEN_READWRITE, (err) => {
+  	if (err) {
+    	console.error(err.message);
+  	}
+  });
+
+	db.serialize(() => {
+  db.run(`INSERT INTO users
+          VALUES ( '`+ newUser.username+`' ,'`+newUser.email+`','`+newUser.password+`','user')`)
+    .each(`SELECT * FROM users`, (err, row) => {
+      if (err){
+        throw err;
+      }
+      //console.log(row);
+    });
+});
+	
+ 
+	db.close((err) => {
+	  if (err) {
+	    console.error(err.message);
+	  }
+	  console.log('Close the database connection.');
+	});
+	*/
 }
+//*******************************************************************
+//*******************************************************************
 
 app.route("/login")
 .get(function(req,res){
@@ -138,8 +208,12 @@ app.route("/login")
 		{
 			if(users[i].username == req.body.username)
 			{
-				res.cookie('login', users[i], { maxAge : 35000 });
-				found = true;
+				if(users[i].password == req.body.pass){
+					res.cookie('login', users[i], { maxAge : 35000 });
+					found = true;
+				}
+				else found = false;
+				
 				break;
 			}
 		}
@@ -161,6 +235,10 @@ app.get("/getCurrentUser",function(req, res) {
 		var obj = JSON.stringify(req.cookies.login);
 		res.end(obj); 
 	})
+
+//******************************************************************
+//*********************Конец***************************************
+//******************************************************************
 
 
 
